@@ -133,40 +133,54 @@ with col2:
 # ---- LÓGICA DE GENERACIÓN ----
 
 def generar_bloque_principal(tiempo_str):
-    # Determinar variables en función del tiempo
+    def get_fuerza():
+        ej = random.choice(EJERCICIOS_FUERZA)
+        return f"{ej['nombre']} ({ej['detalle']} - {ej['peso']})"
+
+    def get_carrera():
+        return random.choice(BLOQUES_CARRERA)
+
+    # Determinamos la rutina de "Carrera bajo fatiga" según el tiempo
     if tiempo_str == "30 minutos":
-        formato = "AMRAP"
         tiempo_main = 20
-        num_ejercicios = 3
-        num_carreras = 1
-        explicacion = "El AMRAP es ideal para sesiones cortas, exprimiendo la intensidad máxima sin pensar en el fin de las rondas."
+        explicacion = "El objetivo es sostener intensidad en periodos cortos con alta interferencia muscular (Carrera bajo fatiga)."
+        
+        rutina_seleccionada = f"<strong>AMRAP Loop (Repetir sin pausa por {tiempo_main} minutos):</strong><br><br>" \
+                              f"1. 🏃 {get_carrera()}<br>" \
+                              f"2. 🏋️ {get_fuerza()}<br>" \
+                              f"3. 🏃 {get_carrera()}<br>" \
+                              f"4. 🏋️ {get_fuerza()}"
+        titulo_formato = f"🔥 Formato: AMRAP - Carrera Bajo Fatiga ({tiempo_main} MIN)"
+        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Haz la máxima cantidad de rondas posibles de la siguiente estructura en {tiempo_main} minutos."
+        
     elif tiempo_str == "45 minutos":
-        formato = "FOR TIME"
         tiempo_main = 30
-        num_ejercicios = 4
-        num_carreras = 2
-        explicacion = "El FOR TIME permite enfocarse en dominar un volumen concreto de trabajo a un ritmo sostenido, perfecto para media distancia."
+        explicacion = "Enfoque en resistencia muscular y transiciones (Carrera bajo fatiga). Correr largo con pausas activas duras."
+        
+        rutina_seleccionada = f"<strong>Completar lo más rápido posible (Rondas intercaladas):</strong><br><br>" \
+                              f"&bull; <strong>Estación 1:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 2:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 3:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 4:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}"
+        titulo_formato = f"⏱️ Formato: FOR TIME - Carrera Bajo Fatiga (Cap: {tiempo_main} mins)"
+        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Completa toda la estructura en el menor tiempo posible, manteniendo un ritmo de carrera sólido a pesar del trabajo de fuerza."
+        
     else: # 60 min
-        formato = "MIXTO"
         tiempo_main = 40
-        num_ejercicios = 6
-        num_carreras = 3
-        explicacion = "El formato MIXTO simula los cambios de desgaste en carrera: te empuja y luego te exige soportar repeticiones."
+        explicacion = "Simulación real de la carrera bajo fatiga. Intercalar el ritmo con bloques de fuerza largos y pesados."
         
-    ejercicios_seleccionados = random.sample(EJERCICIOS_FUERZA, num_ejercicios)
-    carreras_seleccionadas = random.choices(BLOQUES_CARRERA, k=num_carreras)
-    
-    if formato == "AMRAP":
-        titulo_formato = f"🔥 Formato: AMRAP ({tiempo_main} MIN)"
-        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Haz la máxima cantidad de rondas posibles del siguiente circuito en {tiempo_main} minutos."
-    elif formato == "FOR TIME":
-        titulo_formato = f"⏱️ Formato: FOR TIME (Cap: {tiempo_main} mins)"
-        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Completa 4 rondas del siguiente circuito en el menor tiempo posible (Límite: {tiempo_main} min)."
-    else: # MIXTO
-        titulo_formato = f"🌪️ Formato: MIXTO (Cap: {tiempo_main} mins)"
-        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Completa primero todas las carreras enumeradas lo más rápido que puedas (FOR TIME). Con el tiempo restante de los {tiempo_main} min, realiza un AMRAP con los ejercicios de fuerza indicados."
-        
-    return titulo_formato, desc_formato, ejercicios_seleccionados, carreras_seleccionadas
+        rutina_seleccionada = f"<strong>Simulación HYROX Larga (Completar con consistencia):</strong><br><br>" \
+                              f"&bull; <strong>Estación 1:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 2:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 3:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 4:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 5:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}<br><br>" \
+                              f"&bull; <strong>Estación 6:</strong><br>🏃 {get_carrera()}<br>🏋️ {get_fuerza()}"
+        titulo_formato = f"🌪️ Formato: MIXTO - Carrera Bajo Fatiga (Cap: {tiempo_main} mins)"
+        desc_formato = f"**Por qué este formato:** {explicacion}\n\n**Instrucciones:** Realiza el bloque principal buscando mantener una velocidad de carrera consistente en cada estación, tal como lo harías en un evento HYROX."
+
+    return titulo_formato, desc_formato, rutina_seleccionada
+
 
 if btn_generar:
     st.markdown("<hr>", unsafe_allow_html=True)
