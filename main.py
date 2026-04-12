@@ -196,26 +196,18 @@ if btn_generar:
         st.info("🕒 Duración sugerida: 10 minutos")
     st.markdown(f"<div class='card-box'>🏃‍♂️ <strong>Estructura:</strong> {warmup_text}</div>", unsafe_allow_html=True)
     
-    # 2. BLOQUE PRINCIPAL
+        # 2. BLOQUE PRINCIPAL
     st.markdown("<div class='section-header'>2️⃣ MAIN WORKOUT (Bloque Principal)</div>", unsafe_allow_html=True)
-    titulo_fmt, desc_fmt, ej_fuerza, ej_carrera = generar_bloque_principal(tiempo_sesion)
+    
+    # Aquí es donde fallaba, ahora recibe correctamente 3 variables
+    titulo_fmt, desc_fmt, rutina_seleccionada = generar_bloque_principal(tiempo_sesion)
     
     st.subheader(titulo_fmt)
     st.write(desc_fmt)
     
-    st.markdown("**Circuito propuesto:**")
-    for carrera in ej_carrera:
-        st.markdown(f"<div class='card-box'>👟 <strong>Carrera:</strong> {carrera}</div>", unsafe_allow_html=True)
-        
-    for i, ej in enumerate(ej_fuerza, 1):
-        # Ajustamos aleatoriamente repeticiones o distancias si no tienen métricas fijas estandar para no aburrir
-        detalle = ej['detalle']
-        if "100 reps" in detalle:
-            detalle = "30-50 reps (Escala para el circuito)" if "AMRAP" in titulo_fmt else detalle
-        elif "1000m" in detalle:
-            detalle = "250m - 500m (Escala corta para circuitos)" if tiempo_sesion == "30 minutos" else detalle
-            
-        st.markdown(f"<div class='card-box'>🏋️ <strong>Estación {i}:</strong> {ej['nombre']} <br> <em>{detalle}</em> <br> <small>Peso: {ej['peso']}</small></div>", unsafe_allow_html=True)
+    st.markdown("**Estructura de la sesión (Carrera bajo fatiga):**")
+    st.markdown(f"<div class='card-box' style='font-weight: 500; font-size: 1.1em;'>🏃‍♂️💥 <strong>Trabajo Específico:</strong><br><br>{rutina_seleccionada}</div>", unsafe_allow_html=True)
+
         
     # 3. VUELTA A LA CALMA
     st.markdown("<div class='section-header'>3️⃣ COOL-DOWN (Recuperación)</div>", unsafe_allow_html=True)
