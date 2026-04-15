@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import streamlit.components.v1 as components
 
 # ---- DATOS EXTRAÍDOS DEL CUADERNO "EL PLAN MAESTRO DE HYROX" ----
 
@@ -64,6 +65,66 @@ CALENTAMIENTOS = [
 
 # ---- CONFIGURACIÓN DE PÁGINA Y CSS (INSPIRADO EN LA IMAGEN) ----
 st.set_page_config(page_title="Hyrox Session Generator", page_icon="💪", layout="centered")
+
+# ---- STATE INIT Y MODO ENTRENAMIENTO ----
+if 'entrenando' not in st.session_state:
+    st.session_state.entrenando = False
+
+def iniciar_entrenamiento():
+    st.session_state.entrenando = True
+
+def finalizar_entrenamiento():
+    st.session_state.entrenando = False
+
+if st.session_state.entrenando:
+    st.markdown("""
+        <style>
+        .stApp { background-color: #000000; color: #FFFFFF; font-family: 'Inter', sans-serif; }
+        .stMarkdown p, .stMarkdown li, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stText { color: #FFFFFF !important; }
+        h1 { color: #FFE32E !important; font-size: 2.5rem !important; text-align: center; margin-bottom: 0px; }
+        .workout-text { font-size: 1.4rem; line-height: 1.6; padding: 25px; border-radius: 12px; background-color: #111; border: 2px solid #3BCB8B; margin-top: 10px; }
+        .workout-text strong { color: #FFE32E !important; }
+        .stButton>button { background-color: #FF4B4B !important; color: white !important; border: none !important; padding: 15px 24px !important; font-weight: bold !important; border-radius: 10px !important; width: 100% !important; font-size:1.5rem !important; }
+        .stButton>button:hover { background-color: #FF0000 !important; color: white !important; }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<h1>🔥 ACTIVE WORKOUT 🔥</h1>", unsafe_allow_html=True)
+    
+    minutos = st.session_state.get('minutos_timer', 30)
+    timer_html = f'''
+    <div style="font-size: 6rem; font-weight: 800; text-align: center; color: #FFE32E; font-family: monospace; line-height: 1.2;">
+        <span id="timer">--:--</span>
+    </div>
+    <script>
+        var time = {minutos} * 60;
+        var display = document.getElementById('timer');
+        var timerInterval = setInterval(function () {{
+            if (time < 0) {{
+                clearInterval(timerInterval);
+                display.innerHTML = "00:00";
+                display.style.color = "#FF4B4B";
+                return;
+            }}
+            var m = parseInt(time / 60, 10);
+            var s = parseInt(time % 60, 10);
+            m = m < 10 ? "0" + m : m;
+            s = s < 10 ? "0" + s : s;
+            display.innerHTML = m + ":" + s;
+            time--;
+        }}, 1000);
+    </script>
+    '''
+    components.html(timer_html, height=140)
+    
+    st.markdown(f"<div class='workout-text'>{st.session_state.get('rutina_texto', '')}</div>", unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    colA, colB, colC = st.columns([1, 2, 1])
+    with colB:
+        st.button("🛑 FINALIZAR", on_click=finalizar_entrenamiento)
+    
+    st.stop()
 
 # Colores de la imagen:
 # Verde pálido/esmeralda: #3BCB8B (Mint)
@@ -246,4 +307,14 @@ if btn_generar:
     st.markdown(f"<div class='card-box'>🧘 <strong>Método:</strong> {metodo_rec}</div>", unsafe_allow_html=True)
     
     st.success("¡Sesión generada con éxito! A por todas.")
-
+    
+    # Guardar en estado para el modo entrenamiento
+    st.session_state['minutos_timer'] = int(tiempo_sesion.split()[0])
+    st.session_state['rutina_texto'] = f"<div style='margin-bottom: 15px;'><strong>1️⃣ CALENTAMIENTO:</strong><br>{warmup_text}</div>" \
+                                       f"<div style='margin-bottom: 15px;'><strong>2️⃣ BLOQUE PRINCIPAL:</strong><br>{titulo_fmt}<br><br>{rutina_seleccionada}</div>" \
+                                       f"<div><strong>3️⃣ VUELTA A LA CALMA:</strong><br>{metodo_rec}</div>"
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    colStartX, colStartY, colStartZ = st.columns([1, 2, 1])
+    with colStartY:
+        st.button("🚀 INICIAR ENTRENAMIENTO", on_click=iniciar_entrenamiento, use_container_width=True)
