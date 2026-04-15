@@ -4,14 +4,40 @@ import random
 # ---- DATOS EXTRAÍDOS DEL CUADERNO "EL PLAN MAESTRO DE HYROX" ----
 
 EJERCICIOS_FUERZA = [
-    {"nombre": "SkiErg", "detalle": "1000m en ergómetro de esquí", "peso": "N/A"},
-    {"nombre": "Sled Push", "detalle": "Empuje de trineo x 50m (4x12.5m)", "peso": "Pesado (ej. 152kg H / 102kg M)"},
-    {"nombre": "Sled Pull", "detalle": "Tirón de trineo con cuerda x 50m", "peso": "Pesado (ej. 103kg H / 78kg M)"},
-    {"nombre": "Burpee Broad Jumps", "detalle": "Burpees con salto de longitud x 80m", "peso": "Peso corporal"},
-    {"nombre": "Rowing", "detalle": "1000m en ergómetro de remo", "peso": "N/A"},
-    {"nombre": "Farmer's Carry", "detalle": "Paseo del granjero con pesas rusas x 200m", "peso": "2x24kg H / 2x16kg M"},
-    {"nombre": "Sandbag Lunges", "detalle": "Zancadas con saco de arena x 100m", "peso": "20kg H / 10kg M"},
-    {"nombre": "Wall Balls", "detalle": "Lanzamiento de balón medicinal", "peso": "100 reps (6kg H / 4kg M)"}
+    {"nombre": "SkiErg", "detalle": "1000m en ergómetro de esquí", "peso": {
+        "Iniciación": "N/A", "Open": "N/A", "Pro": "N/A"
+    }},
+    {"nombre": "Sled Push", "detalle": "Empuje de trineo x 50m (4x12.5m)", "peso": {
+        "Iniciación": "102kg H / 52kg M", 
+        "Open": "152kg H / 102kg M", 
+        "Pro": "175kg H / 152kg M"
+    }},
+    {"nombre": "Sled Pull", "detalle": "Tirón de trineo con cuerda x 50m", "peso": {
+        "Iniciación": "78kg H / 53kg M", 
+        "Open": "103kg H / 78kg M", 
+        "Pro": "153kg H / 103kg M"
+    }},
+    {"nombre": "Burpee Broad Jumps", "detalle": "Burpees con salto de longitud x 80m", "peso": {
+        "Iniciación": "Peso corporal", "Open": "Peso corporal", "Pro": "Peso corporal"
+    }},
+    {"nombre": "Rowing", "detalle": "1000m en ergómetro de remo", "peso": {
+        "Iniciación": "N/A", "Open": "N/A", "Pro": "N/A"
+    }},
+    {"nombre": "Farmer's Carry", "detalle": "Paseo del granjero con pesas rusas x 200m", "peso": {
+        "Iniciación": "2x16kg H / 2x12kg M", 
+        "Open": "2x24kg H / 2x16kg M", 
+        "Pro": "2x32kg H / 2x24kg M"
+    }},
+    {"nombre": "Sandbag Lunges", "detalle": "Zancadas con saco de arena x 100m", "peso": {
+        "Iniciación": "10kg H / 10kg M", 
+        "Open": "20kg H / 10kg M", 
+        "Pro": "30kg H / 20kg M"
+    }},
+    {"nombre": "Wall Balls", "detalle": "Lanzamiento de balón medicinal", "peso": {
+        "Iniciación": "75 reps (4kg H / 4kg M)", 
+        "Open": "100 reps (6kg H) / 75 reps (4kg M)", 
+        "Pro": "100 reps (9kg H / 6kg M)"
+    }}
 ]
 
 BLOQUES_CARRERA = [
@@ -127,15 +153,17 @@ st.markdown("<div class='subtitle'>Selecciona tu tiempo disponible y genera un W
 
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
+    nivel_usuario = st.selectbox("🏅 Nivel de experiencia:", ["Iniciación", "Open", "Pro"], index=1)
     tiempo_sesion = st.selectbox("⏳ Tiempo total disponible:", ["30 minutos", "45 minutos", "60 minutos"])
     btn_generar = st.button("GENERAR SESIÓN")
 
 # ---- LÓGICA DE GENERACIÓN ----
 
-def generar_bloque_principal(tiempo_str):
+def generar_bloque_principal(tiempo_str, nivel_str):
     def get_fuerza():
         ej = random.choice(EJERCICIOS_FUERZA)
-        return f"{ej['nombre']} ({ej['detalle']} - {ej['peso']})"
+        peso_str = ej['peso'][nivel_str]
+        return f"{ej['nombre']} ({ej['detalle']} - {peso_str})"
 
     def get_carrera():
         return random.choice(BLOQUES_CARRERA)
@@ -181,7 +209,6 @@ def generar_bloque_principal(tiempo_str):
 
     return titulo_formato, desc_formato, rutina_seleccionada
 
-
 if btn_generar:
     st.markdown("<hr>", unsafe_allow_html=True)
     
@@ -196,18 +223,15 @@ if btn_generar:
         st.info("🕒 Duración sugerida: 10 minutos")
     st.markdown(f"<div class='card-box'>🏃‍♂️ <strong>Estructura:</strong> {warmup_text}</div>", unsafe_allow_html=True)
     
-        # 2. BLOQUE PRINCIPAL
+    # 2. BLOQUE PRINCIPAL
     st.markdown("<div class='section-header'>2️⃣ MAIN WORKOUT (Bloque Principal)</div>", unsafe_allow_html=True)
-    
-    # Aquí es donde fallaba, ahora recibe correctamente 3 variables
-    titulo_fmt, desc_fmt, rutina_seleccionada = generar_bloque_principal(tiempo_sesion)
+    titulo_fmt, desc_fmt, rutina_seleccionada = generar_bloque_principal(tiempo_sesion, nivel_usuario)
     
     st.subheader(titulo_fmt)
     st.write(desc_fmt)
     
     st.markdown("**Estructura de la sesión (Carrera bajo fatiga):**")
     st.markdown(f"<div class='card-box' style='font-weight: 500; font-size: 1.1em;'>🏃‍♂️💥 <strong>Trabajo Específico:</strong><br><br>{rutina_seleccionada}</div>", unsafe_allow_html=True)
-
         
     # 3. VUELTA A LA CALMA
     st.markdown("<div class='section-header'>3️⃣ COOL-DOWN (Recuperación)</div>", unsafe_allow_html=True)
@@ -222,3 +246,4 @@ if btn_generar:
     st.markdown(f"<div class='card-box'>🧘 <strong>Método:</strong> {metodo_rec}</div>", unsafe_allow_html=True)
     
     st.success("¡Sesión generada con éxito! A por todas.")
+
