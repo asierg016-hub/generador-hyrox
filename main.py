@@ -7,46 +7,46 @@ import streamlit.components.v1 as components
 EJERCICIOS_FUERZA = [
     {"nombre": "SkiErg", "detalle": "1000m en ergómetro de esquí", "peso": {
         "Iniciación": "N/A", "Open": "N/A", "Pro": "N/A"
-    }},
+    }, "foco": "Aeróbico"},
     {"nombre": "Sled Push", "detalle": "Empuje de trineo x 50m (4x12.5m)", "peso": {
         "Iniciación": "102kg H / 52kg M", 
         "Open": "152kg H / 102kg M", 
         "Pro": "175kg H / 152kg M"
-    }},
+    }, "foco": "Fuerza-Resistencia"},
     {"nombre": "Sled Pull", "detalle": "Tirón de trineo con cuerda x 50m", "peso": {
         "Iniciación": "78kg H / 53kg M", 
         "Open": "103kg H / 78kg M", 
         "Pro": "153kg H / 103kg M"
-    }},
+    }, "foco": "Fuerza-Resistencia"},
     {"nombre": "Burpee Broad Jumps", "detalle": "Burpees con salto de longitud x 80m", "peso": {
         "Iniciación": "Peso corporal", "Open": "Peso corporal", "Pro": "Peso corporal"
-    }},
+    }, "foco": "Umbral"},
     {"nombre": "Rowing", "detalle": "1000m en ergómetro de remo", "peso": {
         "Iniciación": "N/A", "Open": "N/A", "Pro": "N/A"
-    }},
+    }, "foco": "Aeróbico"},
     {"nombre": "Farmer's Carry", "detalle": "Paseo del granjero con pesas rusas x 200m", "peso": {
         "Iniciación": "2x16kg H / 2x12kg M", 
         "Open": "2x24kg H / 2x16kg M", 
         "Pro": "2x32kg H / 2x24kg M"
-    }},
+    }, "foco": "Fuerza-Resistencia"},
     {"nombre": "Sandbag Lunges", "detalle": "Zancadas con saco de arena x 100m", "peso": {
         "Iniciación": "10kg H / 10kg M", 
         "Open": "20kg H / 10kg M", 
         "Pro": "30kg H / 20kg M"
-    }},
+    }, "foco": "Fuerza-Resistencia"},
     {"nombre": "Wall Balls", "detalle": "Lanzamiento de balón medicinal", "peso": {
         "Iniciación": "75 reps (4kg H / 4kg M)", 
         "Open": "100 reps (6kg H) / 75 reps (4kg M)", 
         "Pro": "100 reps (9kg H / 6kg M)"
-    }}
+    }, "foco": "Aeróbico"}
 ]
 
 BLOQUES_CARRERA = [
-    "1 km a ritmo de carrera estándar",
-    "Carrera comprometida 800m (correr rápido bajo fatiga después de un ejercicio pesado)",
-    "Run Shuttle: 4 x 200m (con 30s de descanso)",
-    "Sprints repetidos: 10 x 50m",
-    "Run Tempo: 2 x 400m a un 85% de capacidad"
+    {"nombre": "1 km a ritmo de carrera estándar", "foco": "Aeróbico"},
+    {"nombre": "Carrera comprometida 800m (correr rápido bajo fatiga después de un ejercicio pesado)", "foco": "Fuerza-Resistencia"},
+    {"nombre": "Run Shuttle: 4 x 200m (con 30s de descanso)", "foco": "Umbral"},
+    {"nombre": "Sprints repetidos: 10 x 50m", "foco": "Umbral"},
+    {"nombre": "Run Tempo: 2 x 400m a un 85% de capacidad", "foco": "Fuerza-Resistencia"}
 ]
 
 METODOS_RECUPERACION = [
@@ -212,22 +212,35 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 st.title("⚡ Generador de Rutinas HYROX")
 st.markdown("<div class='subtitle'>Selecciona tu tiempo disponible y genera un WOD estratégico (AMRAP / FOR TIME) basado en The Master Plan.</div>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([1, 2, 1])
+col1, col2, col3 = st.columns(3)
+with col1:
+    foco_usuario = st.selectbox("🎯 Foco:", ["Aeróbico", "Fuerza-Resistencia", "Umbral"])
 with col2:
-    nivel_usuario = st.selectbox("🏅 Nivel de experiencia:", ["Iniciación", "Open", "Pro"], index=1)
-    tiempo_sesion = st.selectbox("⏳ Tiempo total disponible:", ["30 minutos", "45 minutos", "60 minutos"])
+    nivel_usuario = st.selectbox("🏅 Nivel:", ["Iniciación", "Open", "Pro"], index=1)
+with col3:
+    tiempo_sesion = st.selectbox("⏳ Tiempo:", ["30 minutos", "45 minutos", "60 minutos"])
+
+st.markdown("<br>", unsafe_allow_html=True)
+colBtnA, colBtnB, colBtnC = st.columns([1, 2, 1])
+with colBtnB:
     btn_generar = st.button("GENERAR SESIÓN")
 
 # ---- LÓGICA DE GENERACIÓN ----
 
-def generar_bloque_principal(tiempo_str, nivel_str):
+def generar_bloque_principal(tiempo_str, nivel_str, foco_str):
     def get_fuerza():
-        ej = random.choice(EJERCICIOS_FUERZA)
+        filtrados = [ej for ej in EJERCICIOS_FUERZA if ej.get('foco') == foco_str]
+        if not filtrados:
+            filtrados = [EJERCICIOS_FUERZA[0]]
+        ej = random.choice(filtrados)
         peso_str = ej['peso'][nivel_str]
         return f"{ej['nombre']} ({ej['detalle']} - {peso_str})"
 
     def get_carrera():
-        return random.choice(BLOQUES_CARRERA)
+        filtrados = [c for c in BLOQUES_CARRERA if c.get('foco') == foco_str]
+        if not filtrados:
+            filtrados = [BLOQUES_CARRERA[0]]
+        return random.choice(filtrados)['nombre']
 
     # Determinamos la rutina de "Carrera bajo fatiga" según el tiempo
     if tiempo_str == "30 minutos":
@@ -286,7 +299,7 @@ if btn_generar:
     
     # 2. BLOQUE PRINCIPAL
     st.markdown("<div class='section-header'>2️⃣ MAIN WORKOUT (Bloque Principal)</div>", unsafe_allow_html=True)
-    titulo_fmt, desc_fmt, rutina_seleccionada = generar_bloque_principal(tiempo_sesion, nivel_usuario)
+    titulo_fmt, desc_fmt, rutina_seleccionada = generar_bloque_principal(tiempo_sesion, nivel_usuario, foco_usuario)
     
     st.subheader(titulo_fmt)
     st.write(desc_fmt)
